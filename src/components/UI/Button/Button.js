@@ -4,6 +4,7 @@ import classes from "./Button.module.css";
 const Button = (props) => {
   const style = classes[props.type];
   const cls = [classes.Button, style];
+
   return (
     <>
       <button
