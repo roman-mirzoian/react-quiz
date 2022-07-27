@@ -18,12 +18,12 @@ const defaultQuiz = [
   {
     id: 2,
     question: "Какой сейчас год?",
-    rightAnswerId: 3,
+    rightAnswerId: 7,
     answers: [
-      { text: "2222", id: 1 },
-      { text: "2020", id: 2 },
-      { text: "2022", id: 3 },
-      { text: "0002", id: 4 },
+      { text: "2222", id: 5 },
+      { text: "2020", id: 6 },
+      { text: "2022", id: 7 },
+      { text: "0002", id: 8 },
     ],
   },
 ];
@@ -33,7 +33,8 @@ const Quiz = () => {
   const [quizData, setQuizData] = useState(defaultQuiz);
   const [activeQuestionNumber, setActiveQuestionNumber] = useState(0);
   const [answerState, setAnswerState] = useState(null);
-  const [isQuizFinished, setIsQuizFinished] = useState(true);
+  const [isQuizFinished, setIsQuizFinished] = useState(false);
+  const [results, setResults] = useState({});
 
   const updateQuestion = () => {
     const isQuizFinished = activeQuestionNumber + 1 === quizData.length;
@@ -44,16 +45,33 @@ const Quiz = () => {
     }
     setAnswerState(null);
   };
+
   const checkAnswer = (question, answerId) => {
+    let currentResult = {};
+    let currentAnswerState = {};
+    let isResultAlreadySaved = results[question.id];
+    const updateCurrentData = (key, data) => ({ [key]: data });
+
     if (question.rightAnswerId === answerId) {
-      setAnswerState({ [answerId]: "success" });
+      if (!isResultAlreadySaved) {
+        currentResult = updateCurrentData(question.id, "success");
+      }
+      currentAnswerState = updateCurrentData(answerId, "success");
       const timeout = setTimeout(() => {
         updateQuestion();
         clearTimeout(timeout);
       }, questionDelay);
     } else {
-      setAnswerState({ [answerId]: "error" });
+      if (!isResultAlreadySaved) {
+        currentResult = updateCurrentData(question.id, "error");
+      }
+      currentAnswerState = updateCurrentData(answerId, "error");
     }
+
+    if (currentResult[question.id]) {
+      setResults((prevRes) => ({ ...prevRes, ...currentResult }));
+    }
+    setAnswerState(currentAnswerState);
   };
 
   const onAnswerClickHandler = (answerId) => {
@@ -65,13 +83,24 @@ const Quiz = () => {
     checkAnswer(question, answerId);
   };
 
+  const retryHandler = () => {
+    setActiveQuestionNumber(0);
+    setAnswerState(null);
+    setIsQuizFinished(false);
+    setResults({});
+  };
+
   return (
     <div className={classes.Quiz}>
       <div className={classes.QuizWrapper}>
         <h1>Quiz page</h1>
 
         {isQuizFinished ? (
-          <FinishedQuiz />
+          <FinishedQuiz
+            results={results}
+            quiz={quizData}
+            onRetry={retryHandler}
+          />
         ) : (
           <ActiveQuiz
             answers={quizData[activeQuestionNumber].answers}
