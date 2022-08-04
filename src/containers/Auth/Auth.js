@@ -1,43 +1,42 @@
 import React, { useEffect, useState } from "react";
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
+import { validateInput, validateForm } from "../../form/formHelper";
 import classes from "./Auth.module.css";
+
+const baseControlsData = {
+  email: {
+    value: "",
+    type: "email",
+    label: "Email",
+    errorMessage: "Wrong email",
+    valid: false,
+    touched: false,
+    validation: {
+      required: true,
+      email: true,
+    },
+  },
+  password: {
+    value: "",
+    type: "password",
+    label: "Password",
+    errorMessage: "Wrong password",
+    valid: false,
+    touched: false,
+    validation: {
+      required: true,
+      minLength: 6,
+    },
+  },
+};
 
 const Auth = () => {
   const [isFormValid, setIsFormValid] = useState(false);
-  const [formControls, setFormControls] = useState({
-    email: {
-      value: "",
-      type: "email",
-      label: "Email",
-      errorMessage: "Wrong email",
-      valid: false,
-      touched: false,
-      validation: {
-        required: true,
-        email: true,
-      },
-    },
-    password: {
-      value: "",
-      type: "password",
-      label: "Password",
-      errorMessage: "Wrong password",
-      valid: false,
-      touched: false,
-      validation: {
-        required: true,
-        minLength: 6,
-      },
-    },
-  });
+  const [formControls, setFormControls] = useState(baseControlsData);
 
   useEffect(() => {
-    let isValid = true;
-    Object.values(formControls).forEach((control) => {
-      isValid = control.valid;
-    });
-    setIsFormValid(isValid);
+    setIsFormValid(validateForm(formControls));
   }, [formControls]);
 
   const loginHandler = () => {};
@@ -102,31 +101,5 @@ const Auth = () => {
     </div>
   );
 };
-
-function validateEmail(email) {
-  return String(email)
-    .toLowerCase()
-    .match(
-      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-    );
-}
-
-function validateInput(value, validation) {
-  if (!validation) {
-    return true;
-  }
-
-  let isValid = true;
-  if (validation.required) {
-    isValid = value.trim() !== "" && isValid;
-  }
-  if (validation.email) {
-    isValid = validateEmail(value);
-  }
-  if (validation.minLength) {
-    isValid = value.length >= validation.minLength && isValid;
-  }
-  return isValid;
-}
 
 export default Auth;
