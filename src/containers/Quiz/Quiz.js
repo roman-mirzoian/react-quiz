@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useMatch } from "react-router-dom";
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz";
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
 import classes from "./Quiz.module.css";
@@ -28,8 +29,11 @@ const defaultQuiz = [
   },
 ];
 const questionDelay = 1000;
+const routePattern = "/quiz/:id";
 
 const Quiz = () => {
+  const routeData = useMatch(routePattern);
+
   const [quizData, setQuizData] = useState(defaultQuiz);
   const [activeQuestionNumber, setActiveQuestionNumber] = useState(0);
   const [answerState, setAnswerState] = useState(null);
