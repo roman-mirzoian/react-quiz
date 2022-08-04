@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
-import { validateInput, validateForm } from "../../form/formHelper";
+import { validateInput, validateForm } from "../../helpers/formHelper";
 import classes from "./Auth.module.css";
 
 const baseControlsData = {

@@ -6,7 +6,7 @@ import {
   createControl,
   validateInput,
   validateForm,
-} from "../../form/formHelper";
+} from "../../helpers/formHelper";
 import classes from "./QuizCreator.module.css";
 
 const QuizCreator = () => {
