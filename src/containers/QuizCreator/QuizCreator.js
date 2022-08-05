@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
 import Select from "../../components/UI/Select/Select";
@@ -10,6 +11,7 @@ import {
 import classes from "./QuizCreator.module.css";
 
 const QuizCreator = () => {
+  // hooks:on
   const [quiz, setQuiz] = useState([]);
   const [isFormValid, setIsFormValid] = useState(false);
   const [rightAnswerId, setRightAnswerId] = useState(1);
@@ -18,37 +20,45 @@ const QuizCreator = () => {
   useEffect(() => {
     setIsFormValid(validateForm(formControls));
   }, [formControls]);
+  // hooks:off
 
+  // handlers:on
   const submitHandler = (e) => {
     e.preventDefault();
   };
-  const addQuestionHandler = (e) => {
-    e.preventDefault();
-
-    const { question, option1, option2, option3, option4 } = formControls;
-
-    const questionItem = {
-      id: quiz.length + 1,
-      question: question.value,
-      rightAnswerId,
-      answers: [
-        { text: option1.value, id: option1.id },
-        { text: option2.value, id: option2.id },
-        { text: option3.value, id: option3.id },
-        { text: option4.value, id: option4.id },
-      ],
-    };
-    setQuiz((prevQuiz) => {
-      return [...prevQuiz, questionItem];
-    });
+  const reinitForm = (full = false) => {
+    if (full) {
+      setQuiz([]);
+    }
     setFormControls(createFormControls());
     setIsFormValid(false);
     setRightAnswerId(1);
   };
-  const createTestHandler = (e) => {
+  const addQuestionHandler = (e) => {
     e.preventDefault();
-    // TODO: add server connect
-    console.log(quiz);
+
+    const questionItem = createQuestionItem({
+      quiz,
+      rightAnswerId,
+      ...formControls,
+    });
+    setQuiz((prevQuiz) => {
+      return [...prevQuiz, questionItem];
+    });
+    reinitForm();
+  };
+  const createTestHandler = async (e) => {
+    e.preventDefault();
+
+    try {
+      await axios.post(
+        "https://react-quiz-91022-default-rtdb.europe-west1.firebasedatabase.app/quizlist.json",
+        quiz
+      );
+      reinitForm(true);
+    } catch (e) {
+      console.log(e);
+    }
   };
   const selectChangeHandler = (e) => {
     setRightAnswerId(+e.target.value);
@@ -67,36 +77,15 @@ const QuizCreator = () => {
       return { ...prevControls, [controlName]: currentInput };
     });
   };
-
-  const renderInputs = () => {
-    return Object.keys(formControls).map((controlName, i) => {
-      const { type, value, valid, touched, label, validation, errorMessage } =
-        formControls[controlName];
-      return (
-        <React.Fragment key={i}>
-          <Input
-            key={controlName + i}
-            type={type}
-            value={value}
-            valid={valid}
-            touched={touched}
-            label={label}
-            shouldValidate={!!validation}
-            errorMessage={errorMessage}
-            onChange={(e) => onChaneInputHandler(e, controlName)}
-          />
-          {i === 0 && <hr />}
-        </React.Fragment>
-      );
-    });
-  };
+  // handlers:off
 
   return (
     <div className={classes.QuizCreator}>
       <div>
         <h1>Quiz creator</h1>
         <form onSubmit={submitHandler}>
-          {renderInputs()}
+          {renderInputs(formControls, onChaneInputHandler)}
+
           <Select
             label="Choose correct answer"
             value={rightAnswerId}
@@ -108,6 +97,7 @@ const QuizCreator = () => {
               { text: 4, value: 4 },
             ]}
           />
+
           <Button
             type="primary"
             onClick={addQuestionHandler}
@@ -128,6 +118,7 @@ const QuizCreator = () => {
   );
 };
 
+// helpers:on
 function createOptionControl(number) {
   return createControl(
     {
@@ -154,5 +145,51 @@ function createFormControls() {
     option4: createOptionControl(4),
   };
 }
+
+function createQuestionItem({
+  quiz,
+  question,
+  rightAnswerId,
+  option1,
+  option2,
+  option3,
+  option4,
+}) {
+  return {
+    id: quiz.length + 1,
+    question: question.value,
+    rightAnswerId,
+    answers: [
+      { text: option1.value, id: option1.id },
+      { text: option2.value, id: option2.id },
+      { text: option3.value, id: option3.id },
+      { text: option4.value, id: option4.id },
+    ],
+  };
+}
+
+function renderInputs(formControls, onChaneInputHandler) {
+  return Object.keys(formControls).map((controlName, i) => {
+    const { type, value, valid, touched, label, validation, errorMessage } =
+      formControls[controlName];
+    return (
+      <React.Fragment key={i}>
+        <Input
+          key={controlName + i}
+          type={type}
+          value={value}
+          valid={valid}
+          touched={touched}
+          label={label}
+          shouldValidate={!!validation}
+          errorMessage={errorMessage}
+          onChange={(e) => onChaneInputHandler(e, controlName)}
+        />
+        {i === 0 && <hr />}
+      </React.Fragment>
+    );
+  });
+}
+// helpers:off
 
 export default QuizCreator;
