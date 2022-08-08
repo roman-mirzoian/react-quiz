@@ -1,14 +1,33 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { NavLink } from "react-router-dom";
 import classes from "./QuizList.module.css";
 
 const QuizList = () => {
+  const [quizData, setQuizData] = useState();
+
+  useEffect(() => {
+    fetch(
+      "https://react-quiz-91022-default-rtdb.europe-west1.firebasedatabase.app/quizlist.json"
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        const quizList = [];
+        Object.keys(res).forEach((key, i) => {
+          quizList.push({
+            id: key,
+            name: `Test #${i + 1}`,
+          });
+        });
+        setQuizData(quizList);
+      });
+  }, []);
+
   const renderQuizList = () => {
-    return [1, 2, 4].map((quiz, i) => {
+    return quizData?.map((quiz, i) => {
       return (
-        <li key={i}>
-          <NavLink to={`/quiz/${quiz}`}>Quiz {quiz}</NavLink>
+        <li key={quiz.id}>
+          <NavLink to={`/quiz/${quiz.id}`}>Quiz {quiz.name}</NavLink>
         </li>
       );
     });
