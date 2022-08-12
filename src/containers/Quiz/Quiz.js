@@ -1,40 +1,34 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz";
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
-import classes from "./Quiz.module.css";
+import Loader from "../../components/UI/Loader/Loader";
 
-const defaultQuiz = [
-  {
-    id: 1,
-    question: "Какого цвета небо?",
-    rightAnswerId: 2,
-    answers: [
-      { text: "Черный", id: 1 },
-      { text: "Синий", id: 2 },
-      { text: "Красный", id: 3 },
-      { text: "Зелёный", id: 4 },
-    ],
-  },
-  {
-    id: 2,
-    question: "Какой сейчас год?",
-    rightAnswerId: 7,
-    answers: [
-      { text: "2222", id: 5 },
-      { text: "2020", id: 6 },
-      { text: "2022", id: 7 },
-      { text: "0002", id: 8 },
-    ],
-  },
-];
-const questionDelay = 1000;
+import classes from "./Quiz.module.css";
+import Constants from "../constants";
 
 const Quiz = () => {
-  const [quizData] = useState(defaultQuiz);
+  // hooks:On
+  const [quizData, setQuizData] = useState();
+  const [loading, setLoading] = useState(true);
   const [activeQuestionNumber, setActiveQuestionNumber] = useState(0);
   const [answerState, setAnswerState] = useState(null);
   const [isQuizFinished, setIsQuizFinished] = useState(false);
   const [results, setResults] = useState({});
+
+  const { id } = useParams();
+  const dbUrl = `${Constants.dbUrl}/${id}.json`;
+
+  useEffect(() => {
+    fetch(dbUrl)
+      .then((res) => res.json())
+      .then((res) => {
+        setQuizData(res);
+        setLoading(false);
+      });
+  }, []);
+  // hooks:Off
 
   const updateQuestion = () => {
     const isQuizFinished = activeQuestionNumber + 1 === quizData.length;
@@ -60,7 +54,7 @@ const Quiz = () => {
       const timeout = setTimeout(() => {
         updateQuestion();
         clearTimeout(timeout);
-      }, questionDelay);
+      }, Constants.questionDelay);
     } else {
       if (!isResultAlreadySaved) {
         currentResult = updateCurrentData(question.id, "error");
@@ -74,6 +68,7 @@ const Quiz = () => {
     setAnswerState(currentAnswerState);
   };
 
+  // handlers:On
   const onAnswerClickHandler = (answerId) => {
     if (answerState && Object.values(answerState)[0] === "success") {
       return;
@@ -89,6 +84,7 @@ const Quiz = () => {
     setIsQuizFinished(false);
     setResults({});
   };
+  // handlers:Off
 
   return (
     <div className={classes.Quiz}>
@@ -102,14 +98,20 @@ const Quiz = () => {
             onRetry={retryHandler}
           />
         ) : (
-          <ActiveQuiz
-            answers={quizData[activeQuestionNumber].answers}
-            question={quizData[activeQuestionNumber].question}
-            quizLength={quizData.length}
-            questionNumber={activeQuestionNumber + 1}
-            state={answerState}
-            onAnswerClick={onAnswerClickHandler}
-          />
+          <>
+            {loading ? (
+              <Loader />
+            ) : (
+              <ActiveQuiz
+                answers={quizData[activeQuestionNumber].answers}
+                question={quizData[activeQuestionNumber].question}
+                quizLength={quizData.length}
+                questionNumber={activeQuestionNumber + 1}
+                state={answerState}
+                onAnswerClick={onAnswerClickHandler}
+              />
+            )}
+          </>
         )}
       </div>
     </div>

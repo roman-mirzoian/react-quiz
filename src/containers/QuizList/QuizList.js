@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
-import classes from "./QuizList.module.css";
 import Loader from "../../components/UI/Loader/Loader";
+import classes from "./QuizList.module.css";
+import Constants from "../constants";
+
+const dbUrl = `${Constants.dbUrl}.json`;
 
 const QuizList = () => {
   const [quizData, setQuizData] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(
-      "https://react-quiz-91022-default-rtdb.europe-west1.firebasedatabase.app/quizlist.json"
-    )
+    fetch(dbUrl)
       .then((res) => res.json())
       .then((res) => {
         const quizList = [];
