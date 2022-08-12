@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import { NavLink } from "react-router-dom";
 import classes from "./QuizList.module.css";
+import Loader from "../../components/UI/Loader/Loader";
 
 const QuizList = () => {
   const [quizData, setQuizData] = useState();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     fetch(
@@ -20,6 +21,7 @@ const QuizList = () => {
           });
         });
         setQuizData(quizList);
+        setLoading(false);
       });
   }, []);
 
@@ -37,8 +39,7 @@ const QuizList = () => {
     <div className={classes.QuizList}>
       <div>
         <h1>Quiz list</h1>
-
-        <ul>{renderQuizList()}</ul>
+        {loading ? <Loader /> : <ul>{renderQuizList()}</ul>}
       </div>
     </div>
   );
