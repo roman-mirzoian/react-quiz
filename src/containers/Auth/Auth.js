@@ -1,46 +1,49 @@
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
 import { validateInput, validateForm } from "../../helpers/formHelper";
 import classes from "./Auth.module.css";
-
-const baseControlsData = {
-  email: {
-    value: "",
-    type: "email",
-    label: "Email",
-    errorMessage: "Wrong email",
-    valid: false,
-    touched: false,
-    validation: {
-      required: true,
-      email: true,
-    },
-  },
-  password: {
-    value: "",
-    type: "password",
-    label: "Password",
-    errorMessage: "Wrong password",
-    valid: false,
-    touched: false,
-    validation: {
-      required: true,
-      minLength: 6,
-    },
-  },
-};
+import Constants from "../constants";
 
 const Auth = () => {
   const [isFormValid, setIsFormValid] = useState(false);
-  const [formControls, setFormControls] = useState(baseControlsData);
+  const [formControls, setFormControls] = useState(Constants.baseControlsData);
 
   useEffect(() => {
     setIsFormValid(validateForm(formControls));
   }, [formControls]);
 
-  const loginHandler = () => {};
-  const registerHandler = () => {};
+  const loginHandler = async () => {
+    const authData = {
+      email: formControls.email.value,
+      password: formControls.password.value,
+      returnSecureToken: true,
+    };
+
+    try {
+      const response = await axios.post(Constants.authApiUrl, authData);
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const registerHandler = async () => {
+    const authData = {
+      email: formControls.email.value,
+      password: formControls.password.value,
+      returnSecureToken: true,
+    };
+
+    try {
+      const response = await axios.post(Constants.registerApiUrl, authData);
+      console.log(response);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const submitHandler = (e) => {
     e.preventDefault();
   };
@@ -91,7 +94,7 @@ const Auth = () => {
           </Button>
           <Button
             type="primary"
-            onClikc={registerHandler}
+            onClick={registerHandler}
             disabled={!isFormValid}
           >
             Sign up
