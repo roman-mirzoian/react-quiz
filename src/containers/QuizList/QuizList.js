@@ -1,29 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
+
+import { useSelector, useDispatch } from "react-redux";
+import { fetchQuizList } from "./quizListSlice";
+
 import Loader from "../../components/UI/Loader/Loader";
 import classes from "./QuizList.module.css";
-import Constants from "../constants";
-
-const dbUrl = `${Constants.dbUrl}.json`;
 
 const QuizList = () => {
-  const [quizData, setQuizData] = useState();
-  const [loading, setLoading] = useState(true);
+  const { quizData, loading, error } = useSelector((state) => state.quizList);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    fetch(dbUrl)
-      .then((res) => res.json())
-      .then((res) => {
-        const quizList = [];
-        Object.keys(res).forEach((key, i) => {
-          quizList.push({
-            id: key,
-            name: `Test #${i + 1}`,
-          });
-        });
-        setQuizData(quizList);
-        setLoading(false);
-      });
+    dispatch(fetchQuizList());
   }, []);
 
   const renderQuizList = () => {
@@ -40,6 +29,7 @@ const QuizList = () => {
     <div className={classes.QuizList}>
       <div>
         <h1>Quiz list</h1>
+        {error && <div>{error}</div>}
         {loading ? <Loader /> : <ul>{renderQuizList()}</ul>}
       </div>
     </div>
