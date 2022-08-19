@@ -1,5 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
+
+import { useSelector, useDispatch } from "react-redux";
+import {
+  fetchQuiz,
+  setAnswerState,
+  setResults,
+  updateQuestion,
+  retryQuiz,
+} from "./quizSlice";
 
 import ActiveQuiz from "../../components/ActiveQuiz/ActiveQuiz";
 import FinishedQuiz from "../../components/FinishedQuiz/FinishedQuiz";
@@ -10,67 +19,53 @@ import Constants from "../constants";
 
 const Quiz = () => {
   // hooks:On
-  const [quizData, setQuizData] = useState();
-  const [loading, setLoading] = useState(true);
-  const [activeQuestionNumber, setActiveQuestionNumber] = useState(0);
-  const [answerState, setAnswerState] = useState(null);
-  const [isQuizFinished, setIsQuizFinished] = useState(false);
-  const [results, setResults] = useState({});
+  const {
+    loading,
+    quizData,
+    activeQuestionNumber,
+    answerState,
+    isQuizFinished,
+    results,
+  } = useSelector((state) => state.quiz);
+  const dispatch = useDispatch();
 
   const { id } = useParams();
-  const dbUrl = `${Constants.dbUrl}/${id}.json`;
-
   useEffect(() => {
-    fetch(dbUrl)
-      .then((res) => res.json())
-      .then((res) => {
-        setQuizData(res);
-        setLoading(false);
-      });
+    dispatch(fetchQuiz(id)());
   }, []);
   // hooks:Off
-
-  const updateQuestion = () => {
-    const isQuizFinished = activeQuestionNumber + 1 === quizData.length;
-    if (isQuizFinished) {
-      setIsQuizFinished(true);
-    } else {
-      setActiveQuestionNumber((prevNumber) => prevNumber + 1);
-    }
-    setAnswerState(null);
-  };
 
   const checkAnswer = (question, answerId) => {
     let currentResult = {};
     let currentAnswerState = {};
     let isResultAlreadySaved = results[question.id];
-    const updateCurrentData = (key, data) => ({ [key]: data });
 
     if (question.rightAnswerId === answerId) {
       if (!isResultAlreadySaved) {
-        currentResult = updateCurrentData(question.id, "success");
+        currentResult = updateCurrentAnswerData(question.id, Constants.success);
       }
-      currentAnswerState = updateCurrentData(answerId, "success");
+      currentAnswerState = updateCurrentAnswerData(answerId, Constants.success);
       const timeout = setTimeout(() => {
-        updateQuestion();
+        dispatch(updateQuestion());
         clearTimeout(timeout);
       }, Constants.questionDelay);
     } else {
       if (!isResultAlreadySaved) {
-        currentResult = updateCurrentData(question.id, "error");
+        currentResult = updateCurrentAnswerData(question.id, Constants.error);
       }
-      currentAnswerState = updateCurrentData(answerId, "error");
+      currentAnswerState = updateCurrentAnswerData(answerId, Constants.error);
     }
 
     if (currentResult[question.id]) {
-      setResults((prevRes) => ({ ...prevRes, ...currentResult }));
+      dispatch(setResults(currentResult));
     }
-    setAnswerState(currentAnswerState);
+
+    dispatch(setAnswerState(currentAnswerState));
   };
 
   // handlers:On
   const onAnswerClickHandler = (answerId) => {
-    if (answerState && Object.values(answerState)[0] === "success") {
+    if (answerState && Object.values(answerState)[0] === Constants.success) {
       return;
     }
 
@@ -79,10 +74,7 @@ const Quiz = () => {
   };
 
   const retryHandler = () => {
-    setActiveQuestionNumber(0);
-    setAnswerState(null);
-    setIsQuizFinished(false);
-    setResults({});
+    dispatch(retryQuiz());
   };
   // handlers:Off
 
@@ -103,8 +95,8 @@ const Quiz = () => {
               <Loader />
             ) : (
               <ActiveQuiz
-                answers={quizData[activeQuestionNumber].answers}
-                question={quizData[activeQuestionNumber].question}
+                answers={quizData[activeQuestionNumber]?.answers}
+                question={quizData[activeQuestionNumber]?.question}
                 quizLength={quizData.length}
                 questionNumber={activeQuestionNumber + 1}
                 state={answerState}
@@ -117,5 +109,9 @@ const Quiz = () => {
     </div>
   );
 };
+
+function updateCurrentAnswerData(key, data) {
+  return { [key]: data };
+}
 
 export default Quiz;

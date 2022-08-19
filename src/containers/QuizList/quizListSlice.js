@@ -4,7 +4,6 @@ import Constants from "../constants";
 
 const sliceName = "quizList";
 const dbUrl = `${Constants.dbUrl}.json`;
-const errorMessage = "Something wrong with server.";
 const actionThunkName = "quiz/fetchList";
 
 export const fetchQuizList = createAsyncThunk(
@@ -28,20 +27,13 @@ const initialState = {
 export const quizListSlice = createSlice({
   name: sliceName,
   initialState,
-  reducers: {
-    setQuizData: (state, action) => {
-      state.quizData = action.payload;
-    },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder.addCase(fetchQuizList.fulfilled, (state, { payload }) => {
       if (payload) {
         state.quizData = parseQuizList(payload);
       } else {
-        state.error = errorMessage;
+        state.error = Constants.fetchErrorMessage;
       }
       state.loading = false;
     });

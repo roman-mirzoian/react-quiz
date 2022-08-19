@@ -31,8 +31,13 @@ const Constants = {
       },
     },
   },
+
   registerApiUrl: `https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=${API_KEY}`,
   authApiUrl: `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${API_KEY}`,
+
+  success: "success",
+  error: "error",
+  fetchErrorMessage: "Something wrong with fetching data.",
 };
 
 export default Constants;
