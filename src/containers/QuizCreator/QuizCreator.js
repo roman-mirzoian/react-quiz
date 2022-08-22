@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  createQuizQuestion,
+  setQuiz,
+  sendCreatedQuiz,
+} from "./quizCreatorSlice";
+
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
 import Select from "../../components/UI/Select/Select";
@@ -12,7 +18,9 @@ import classes from "./QuizCreator.module.css";
 
 const QuizCreator = () => {
   // hooks:on
-  const [quiz, setQuiz] = useState([]);
+  const { quiz } = useSelector((state) => state.quizCreator);
+  const dispatch = useDispatch();
+
   const [isFormValid, setIsFormValid] = useState(false);
   const [rightAnswerId, setRightAnswerId] = useState(1);
   const [formControls, setFormControls] = useState(createFormControls());
@@ -28,7 +36,7 @@ const QuizCreator = () => {
   };
   const reinitForm = (full = false) => {
     if (full) {
-      setQuiz([]);
+      dispatch(setQuiz([]));
     }
     setFormControls(createFormControls());
     setIsFormValid(false);
@@ -37,28 +45,15 @@ const QuizCreator = () => {
   const addQuestionHandler = (e) => {
     e.preventDefault();
 
-    const questionItem = createQuestionItem({
-      quiz,
-      rightAnswerId,
-      ...formControls,
-    });
-    setQuiz((prevQuiz) => {
-      return [...prevQuiz, questionItem];
-    });
+    dispatch(createQuizQuestion({ rightAnswerId, formControls }));
+
     reinitForm();
   };
   const createTestHandler = async (e) => {
     e.preventDefault();
 
-    try {
-      await axios.post(
-        "https://react-quiz-91022-default-rtdb.europe-west1.firebasedatabase.app/quizlist.json",
-        quiz
-      );
-      reinitForm(true);
-    } catch (e) {
-      console.log(e);
-    }
+    dispatch(sendCreatedQuiz(quiz));
+    reinitForm(true);
   };
   const selectChangeHandler = (e) => {
     setRightAnswerId(+e.target.value);
@@ -143,28 +138,6 @@ function createFormControls() {
     option2: createOptionControl(2),
     option3: createOptionControl(3),
     option4: createOptionControl(4),
-  };
-}
-
-function createQuestionItem({
-  quiz,
-  question,
-  rightAnswerId,
-  option1,
-  option2,
-  option3,
-  option4,
-}) {
-  return {
-    id: quiz.length + 1,
-    question: question.value,
-    rightAnswerId,
-    answers: [
-      { text: option1.value, id: option1.id },
-      { text: option2.value, id: option2.id },
-      { text: option3.value, id: option3.id },
-      { text: option4.value, id: option4.id },
-    ],
   };
 }
 
