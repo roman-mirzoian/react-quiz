@@ -3,6 +3,10 @@ import axios from "axios";
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
 import { validateInput, validateForm } from "../../helpers/formHelper";
+
+import { useSelector, useDispatch } from "react-redux";
+import { auth } from "./authSlice";
+
 import classes from "./Auth.module.css";
 import Constants from "../constants";
 
@@ -10,38 +14,55 @@ const Auth = () => {
   const [isFormValid, setIsFormValid] = useState(false);
   const [formControls, setFormControls] = useState(Constants.baseControlsData);
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     setIsFormValid(validateForm(formControls));
   }, [formControls]);
 
   const loginHandler = async () => {
-    const authData = {
-      email: formControls.email.value,
-      password: formControls.password.value,
-      returnSecureToken: true,
-    };
+    // const authData = {
+    //   email: formControls.email.value,
+    //   password: formControls.password.value,
+    //   returnSecureToken: true,
+    // };
+    dispatch(
+      auth({
+        email: formControls.email.value,
+        password: formControls.password.value,
+        isLogin: true,
+      })
+    );
 
-    try {
-      const response = await axios.post(Constants.authApiUrl, authData);
-      console.log(response);
-    } catch (e) {
-      console.log(e);
-    }
+    // try {
+    //   const response = await axios.post(Constants.authApiUrl, authData);
+    //   console.log(response);
+    // } catch (e) {
+    //   console.log(e);
+    // }
   };
 
   const registerHandler = async () => {
-    const authData = {
-      email: formControls.email.value,
-      password: formControls.password.value,
-      returnSecureToken: true,
-    };
+    // const authData = {
+    //   email: formControls.email.value,
+    //   password: formControls.password.value,
+    //   returnSecureToken: true,
+    // };
 
-    try {
-      const response = await axios.post(Constants.registerApiUrl, authData);
-      console.log(response);
-    } catch (e) {
-      console.log(e);
-    }
+    dispatch(
+      auth({
+        email: formControls.email.value,
+        password: formControls.password.value,
+        isLogin: false,
+      })
+    );
+
+    // try {
+    //   const response = await axios.post(Constants.registerApiUrl, authData);
+    //   console.log(response);
+    // } catch (e) {
+    //   console.log(e);
+    // }
   };
 
   const submitHandler = (e) => {
