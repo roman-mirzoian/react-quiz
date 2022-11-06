@@ -69,6 +69,10 @@ const authSlice = createSlice({
     logout: (state) => {
       state.token = null;
       state.expirationDateTime = null;
+
+      localStorage.removeItem("token");
+      localStorage.removeItem("userId");
+      localStorage.removeItem("expirationDateTime");
     },
   },
   extraReducers: (builder) => {
