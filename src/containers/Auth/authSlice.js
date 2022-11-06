@@ -24,6 +24,7 @@ export const auth = createAsyncThunk(
       returnSecureToken: true,
     };
 
+    // set url as login or registration
     let url;
     if (isLogin) {
       url = Constants.authApiUrl;
@@ -44,7 +45,7 @@ export const auth = createAsyncThunk(
     localStorage.setItem("userId", data.localId);
     localStorage.setItem("expirationDateTime", expirationDateTime);
 
-    args[0].dispatch(autoLogout({ time: expirationDateTime }));
+    // args[0].dispatch(autoLogout({ time: expirationDateTime }));
 
     return { token: data.idToken, expirationDateTime };
   }

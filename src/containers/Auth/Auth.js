@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Button from "../../components/UI/Button/Button";
 import Input from "../../components/UI/Input/Input";
 import { validateInput, validateForm } from "../../helpers/formHelper";
 
-import { useSelector, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
 import { auth } from "./authSlice";
 
 import classes from "./Auth.module.css";
@@ -21,11 +20,6 @@ const Auth = () => {
   }, [formControls]);
 
   const loginHandler = async () => {
-    // const authData = {
-    //   email: formControls.email.value,
-    //   password: formControls.password.value,
-    //   returnSecureToken: true,
-    // };
     dispatch(
       auth({
         email: formControls.email.value,
@@ -33,22 +27,9 @@ const Auth = () => {
         isLogin: true,
       })
     );
-
-    // try {
-    //   const response = await axios.post(Constants.authApiUrl, authData);
-    //   console.log(response);
-    // } catch (e) {
-    //   console.log(e);
-    // }
   };
 
   const registerHandler = async () => {
-    // const authData = {
-    //   email: formControls.email.value,
-    //   password: formControls.password.value,
-    //   returnSecureToken: true,
-    // };
-
     dispatch(
       auth({
         email: formControls.email.value,
@@ -56,13 +37,6 @@ const Auth = () => {
         isLogin: false,
       })
     );
-
-    // try {
-    //   const response = await axios.post(Constants.registerApiUrl, authData);
-    //   console.log(response);
-    // } catch (e) {
-    //   console.log(e);
-    // }
   };
 
   const submitHandler = (e) => {
