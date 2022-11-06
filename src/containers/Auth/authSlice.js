@@ -62,6 +62,10 @@ const authSlice = createSlice({
   name: sliceName,
   initialState,
   reducers: {
+    autoLogin: (state, { payload }) => {
+      state.token = payload.token;
+      state.expirationDateTime = payload.expirationDateTime;
+    },
     logout: (state) => {
       state.token = null;
       state.expirationDateTime = null;
@@ -79,5 +83,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { autoLogin, logout } = authSlice.actions;
 export default authSlice.reducer;
